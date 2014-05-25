@@ -1,14 +1,12 @@
 /*
  * main.c
  *
- *  Created on: Jan 25, 2010
- *      Author: mhugues
+ *  Created on: May 25, 2014
+ *      Author: Maxime Hugues <maxime.hugues inria.fr>
  *
- *    Last modified on April 2nd 2010
  */
 
 
-#define _XOPEN_SOURCE 500
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -19,23 +17,25 @@
 
 int main(int argc, char ** argv)
 {
-
-	int rank, cluster_size;
-	int i,j,k;
-	// Cartesian index
-	int I,J;
-MPI_Comm row,column;
+	// Matrix Dimension
 	int Nb_block =0;
 	int block_size =0;
 
+	// MPI
+	int rank, communicator_size;	
 	int tag=1;
-	int provided;
+
+	// Cartesian index
+	int I,J;
+	MPI_Comm row,column;
+
+	// Performance timers
 	double start=0,stop;
 
-	//Init
+
 	MPI_Init(&argc,&argv);
-	MPI_Comm_rank(MPI_COMM_WORLD , &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &cluster_size);
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	MPI_Comm_size(MPI_COMM_WORLD,&communicator_size);
 
 
 	if(argc < 3)
@@ -47,7 +47,7 @@ MPI_Comm row,column;
 	Nb_block=(int)strtol(argv[1],(char**)NULL,10);
 	block_size=(int)strtol(argv[2],(char**)NULL,10);
 
-	if(cluster_size < Nb_block*Nb_block)
+	if(communicator_size < Nb_block*Nb_block)
 	{
 		printf("Resources are insufficient\n");
 		exit(2);
@@ -56,7 +56,7 @@ MPI_Comm row,column;
 	if(rank==0)
 	{
 		printf("Matrix Block Product Parameters\n");
-		printf("\t Nodes:%i Blocks:%i Block Size:%i\n",cluster_size,Nb_block,block_size);
+		printf("\t Nodes:%i Blocks:%i Block Size:%i\n",communicator_size,Nb_block,block_size);
 	}
 
 	I=rank/Nb_block;
@@ -66,10 +66,9 @@ MPI_Comm row,column;
 	MPI_Comm_split(MPI_COMM_WORLD,J,I,&column);
 
 
-
 	if(rank==0) start=MPI_Wtime();
 
-	worker_exec(rank, row, column,  I,J, block_size, Nb_block);
+	worker_exec(rank,row,column,I,J,block_size,Nb_block);
 
 #ifdef DEBUG
 	printf("Rank:%i Finished\n",rank);

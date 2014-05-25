@@ -1,8 +1,8 @@
 /*
  * matblock.h
  *
- *  Created on: Feb 12, 2010
- *      Author: mhugues
+ *  Created on: May 25, 2014
+ *      Author: Maxime Hugues <maxime.hugues inria.fr>
  */
 
 #ifndef MATBLOCK_H_

@@ -3,10 +3,15 @@ DEBUG=no
 
 # Compiler
 CC=mpicxx
-NVCC=nvcc
+
 CFLAGS=-O3
-LDFLAGS=-lm -lcudart -lcublas
-EXEC=MatProdIO
+LDFLAGS=-lcudart -lcublas
+
+NVCC=nvcc
+NVCC_FLAGS= -O3 -arch=sm_20
+
+EXEC=MatProd
+
 SRC=perf.c worker.c main.c
 SRCGPU=matblock.cu
 OBJ=$(SRC:.c=.o) $(SRCGPU:.cu=.o)
@@ -15,9 +20,9 @@ ifeq ($(DEBUG),yes)
 	CFLAGS=-Wall -O3 -DDEBUG
 endif
 
-all:clean $(EXEC)
+all: $(EXEC)
 
-MatProdIO: $(OBJ)
+MatProd: $(OBJ)
 	@echo "Compiling..."
 	$(CC) -o $@ $^ $(LDFLAGS)
 	@echo "Finished"
@@ -26,8 +31,8 @@ MatProdIO: $(OBJ)
 	@$(CC) $(CFLAGS) -o $@ -c $<
 
 %.o: %.cu
-	@$(NVCC) $(CFLAGS) -o $@ -c $<
+	@$(NVCC) $(NVCC_CFLAGS) -o $@ -c $<
 
 clean:
 	@rm -rf *.o $(EXEC) 
-		@echo "Old .o deleted"
+		@echo "All objects and binary files deleted"

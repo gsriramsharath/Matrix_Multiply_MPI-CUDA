@@ -1,8 +1,8 @@
 /*
  * worker.c
  *
- *  Created on: Feb 12, 2010
- *      Author: mhugues
+ *  Created on: May 25, 2014
+ *      Author: Maxime Hugues <maxime.hugues inria.fr>
  */
 
 #include "worker.h"
@@ -41,13 +41,13 @@ void worker_exec(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int bloc
 	{
 
 
-/*		if(J==K)
+		if(J==K)
 		{
 			memcpy(Abuf,Alocal,block_size*block_size*sizeof(double));
 		}
 
 
-			MPI_Bcast(Abuf,block_size*block_size,MPI_DOUBLE,K,row);
+		MPI_Bcast(Abuf,block_size*block_size,MPI_DOUBLE,K,row);
 
 		if(I==K)
 		{
@@ -56,7 +56,7 @@ void worker_exec(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int bloc
 		}
 
 		MPI_Bcast(Bbuf,block_size*block_size,MPI_DOUBLE,K,column);
-*/
+
 		block_MatrixProd_GPU(Abuf,Bbuf,Clocal,block_size,rank);
 		K++;
 	}
