@@ -16,9 +16,9 @@ void worker_exec(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int bloc
 	int K=0;
         int i;
 
-//#ifdef DEBUG
+#ifdef DEBUG
 	printf("Init Rank:%i Cart:%i,%i\n",rank,I,J);
-//#endif
+#endif
 
 	create_MatBlock(&Alocal, block_size);
 	create_MatBlock(&Blocal, block_size);
