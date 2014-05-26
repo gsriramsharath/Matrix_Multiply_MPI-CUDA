@@ -12,12 +12,12 @@ void compute_dgemm(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int bl
 	printf("Init Rank:%i Cart:%i,%i\n",rank,I,J);
 #endif
 
-	create_MatBlock(&Alocal, block_size);
-	create_MatBlock(&Blocal, block_size);
-	create_MatBlock(&Clocal, block_size);
+	alloc_MatBlock(&Alocal, block_size);
+	alloc_MatBlock(&Blocal, block_size);
+	alloc_MatBlock(&Clocal, block_size);
 
-	create_MatBlock(&Abuf, block_size);
-	create_MatBlock(&Bbuf, block_size);
+	alloc_MatBlock(&Abuf, block_size);
+	alloc_MatBlock(&Bbuf, block_size);
 
 	for(i=0;i<block_size*block_size;i++)
 	{
@@ -159,7 +159,7 @@ int block_MatrixProd_GPU(double * A, double * B, double * C, int block_size, int
 
 }
 
-void create_MatBlock(double **A, const int block_size)
+void alloc_MatBlock(double **A, const int block_size)
 {
 	int i=0;
 	*A=(double*)malloc(block_size*block_size*sizeof(double));

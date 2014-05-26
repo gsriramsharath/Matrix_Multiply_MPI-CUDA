@@ -23,7 +23,7 @@ void compute_dgemm(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int bl
 void block_MatrixProd(double * A, double * B, double * C, int block_size);
 int block_MatrixProd_GPU(double * A, double * B, double * C, int block_size, int rank);
 
-void create_MatBlock(double **A, const int block_size);
+void alloc_MatBlock(double **A, const int block_size);
 void free_MatBlock(double *A, const int block_size);
 
 
