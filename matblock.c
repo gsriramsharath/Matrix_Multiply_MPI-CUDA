@@ -1,16 +1,4 @@
 #include "matblock.h"
-#include <cuda_runtime.h>
-#include "cublas_v2.h"
-
-/*
- * worker.c
- *
- *  Created on: May 25, 2014
- *      Author: Maxime Hugues <maxime.hugues inria.fr>
- */
-
-#include "worker.h"
-#include "matblock.h"
 
 void compute_dgemm(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int block_size, int Nb_block)
 {

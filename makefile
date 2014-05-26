@@ -8,7 +8,7 @@ LDFLAGS=-lcudart -lcublas
 
 EXEC=MatProd
 
-SRC=perf.c matblock.c worker.c main.c 
+SRC=perf.c matblock.c main.c 
 OBJ=$(SRC:.c=.o)
 
 ifeq ($(DEBUG),yes)

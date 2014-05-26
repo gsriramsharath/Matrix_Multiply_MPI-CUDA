@@ -12,7 +12,7 @@
 #include <time.h>
 #include <mpi.h>
 #include "perf.h"
-#include "worker.h"
+#include "matblock.h"
 
 
 int main(int argc, char ** argv)
