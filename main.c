@@ -68,7 +68,7 @@ int main(int argc, char ** argv)
 
 	if(rank==0) start=MPI_Wtime();
 
-	worker_exec(rank,row,column,I,J,block_size,Nb_block);
+	compute_dgemm(rank,row,column,I,J,block_size,Nb_block);
 
 #ifdef DEBUG
 	printf("Rank:%i Finished\n",rank);
