@@ -26,10 +26,6 @@ int main(int argc, char ** argv)
 	int rank, communicator_size;	
 	int tag=1;
 
-	// Cartesian index
-	int I,J;
-	MPI_Comm row,column;
-
 	// Performance timers
 	double start=0,stop;
 
@@ -57,7 +53,7 @@ int main(int argc, char ** argv)
 	if(rank==0)
 	{
 		printf("Matrix Block Product Parameters\n");
-		printf("\t Nodes:%i Blocks:%i Block Size:%i\n",communicator_size,Nb_block,block_size);
+		printf("Nodes:%i Blocks:%i Block Size:%i\n",communicator_size,Nb_block,block_size);
 	}
 
 	alloc_MatBlock(&Alocal, block_size);
@@ -82,13 +78,13 @@ int main(int argc, char ** argv)
 
 	}
 
-	free_MatBlock(Alocal, block_size);
-	free_MatBlock(Blocal, block_size);
-	free_MatBlock(Clocal, block_size);
+	free_MatBlock(Alocal);
+	free_MatBlock(Blocal);
+	free_MatBlock(Clocal);
 
 
 	MPI_Finalize();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
