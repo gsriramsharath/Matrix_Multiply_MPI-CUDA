@@ -17,7 +17,7 @@ SRCGPU=matblock.cu
 OBJ=$(SRC:.c=.o) $(SRCGPU:.cu=.o)
 
 ifeq ($(DEBUG),yes)
-	CFLAGS=-Wall -O3 -DDEBUG
+	CFLAGS=-Wall -g -DDEBUG
 endif
 
 all: $(EXEC)
