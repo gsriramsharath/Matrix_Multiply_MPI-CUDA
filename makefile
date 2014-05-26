@@ -31,7 +31,7 @@ MatProd: $(OBJ)
 	@$(CC) $(CFLAGS) -o $@ -c $<
 
 %.o: %.cu
-	@$(NVCC) $(NVCC_CFLAGS) -o $@ -c $<
+	@$(NVCC) $(NVCC_FLAGS) -o $@ -c $<
 
 clean:
 	@rm -rf *.o $(EXEC) 
