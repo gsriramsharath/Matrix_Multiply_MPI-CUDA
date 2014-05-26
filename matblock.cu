@@ -1,6 +1,6 @@
 #include "matblock.h"
 #include <cuda_runtime.h>
-#include "cublas.h"
+#include "cublas_v2.h"
 
 void MatrixProd(double * A, double * B, double * C, int block_size)
 {
@@ -38,6 +38,7 @@ void block_MatrixProd(double * A, double * B, double * C, int block_size)
 int block_MatrixProd_GPU(double * A, double * B, double * C, int block_size, int rank)
 {
 	double *d_A, *d_B, *d_C;
+	double alpha=1.0, beta=0.0;
 	int full_size=block_size*block_size;
 
 	cudaError_t cudaStat;
@@ -93,8 +94,8 @@ int block_MatrixProd_GPU(double * A, double * B, double * C, int block_size, int
 		return EXIT_FAILURE;
 	}
 
-	stat = cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, block_size, block_size, block_size, 1.0f, d_A, block_size, 
-				d_B, block_size, 0.0f, d_C, block_size);
+	stat = cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, block_size, block_size, block_size, 
+					   &alpha, d_A, block_size, d_B, block_size, &beta, d_C, block_size);
 	if (stat != CUBLAS_STATUS_SUCCESS)
 	{
 		printf("DGEMM Computation failed\n");
