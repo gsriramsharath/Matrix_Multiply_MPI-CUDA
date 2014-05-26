@@ -35,39 +35,86 @@ void block_MatrixProd(double * A, double * B, double * C, int block_size)
 
 }
 
-void block_MatrixProd_GPU(double * A, double * B, double * C, int block_size, int rank)
+int block_MatrixProd_GPU(double * A, double * B, double * C, int block_size, int rank)
 {
 	double *d_A, *d_B, *d_C;
 	int full_size=block_size*block_size;
+
+	cudaError_t cudaStat;
+	cublasStatus_t stat;
 	cublasHandle_t handle;
 
 	cudaSetDevice(rank%2);
 
-	//cublasCreate(&handle);
+	cudaStat = cudaMalloc((void**)&d_A, full_size*sizeof(double));
+	if (cudaStat != cudaSuccess)
+	{
+		printf("Memory alloction of A on device failed\n");
+		return EXIT_FAILURE;
+	}
+	cudaStat = cudaMalloc((void**)&d_B, full_size*sizeof(double));
+	if (cudaStat != cudaSuccess)
+	{
+		printf("Memory alloction of B on device failed\n");
+		return EXIT_FAILURE;
+	}
+	cudaStat = cudaMalloc((void**)&d_C, full_size*sizeof(double));
+	if (cudaStat != cudaSuccess)
+	{
+		printf("Memory alloction of C on device failed\n");
+		return EXIT_FAILURE;
+	}
 
-	cublasAlloc(full_size, sizeof(double), (void**)&d_A);
-	cublasAlloc(full_size, sizeof(double), (void**)&d_B);
-	cublasAlloc(full_size, sizeof(double), (void**)&d_C);
+	stat = cublasCreate(&handle);
+	if (stat != CUBLAS_STATUS_SUCCESS)
+	{
+		printf("CUBLAS Initialization failed\n");
+		return EXIT_FAILURE;
+	}
 
-	cublasSetVector(full_size, sizeof(double), A, 1, d_A, 1);
-	cublasSetVector(full_size, sizeof(double), B, 1, d_B, 1);
-	cublasSetVector(full_size, sizeof(double), C, 1, d_C, 1);
+	stat = cublasSetVector(full_size, sizeof(double), A, 1, d_A, 1);
+	if (stat != CUBLAS_STATUS_SUCCESS)
+	{
+		printf("Data transfer of A to device failed\n");
+		return EXIT_FAILURE;
+	}
 
-	float t0, error_norm=0, ref_norm=0;
-	cudaThreadSynchronize();
+	stat = cublasSetVector(full_size, sizeof(double), B, 1, d_B, 1);
+	if (stat != CUBLAS_STATUS_SUCCESS)
+	{
+		printf("Data transfer of B to device failed\n");
+		return EXIT_FAILURE;
+	}
 
-	cublasDgemm('n', 'n', block_size, block_size, block_size, 1.0f, d_A, block_size, d_B, block_size, 0.0f, d_C, block_size);
+	stat = cublasSetVector(full_size, sizeof(double), C, 1, d_C, 1);
+	if (stat != CUBLAS_STATUS_SUCCESS)
+	{
+		printf("Data transfer of C to device failed\n");
+		return EXIT_FAILURE;
+	}
 
-	cudaThreadSynchronize();
+	stat = cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, block_size, block_size, block_size, 1.0f, d_A, block_size, 
+				d_B, block_size, 0.0f, d_C, block_size);
+	if (stat != CUBLAS_STATUS_SUCCESS)
+	{
+		printf("DGEMM Computation failed\n");
+		return EXIT_FAILURE;
+	}
 
-	cublasGetVector(full_size, sizeof(double), d_C, 1, C, 1);
+	stat = cublasGetVector(full_size, sizeof(double), d_C, 1, C, 1);
+	if (stat != CUBLAS_STATUS_SUCCESS)
+	{
+		printf("Data transfer of C from device failed\n");
+		return EXIT_FAILURE;
+	}
 
-	cublasFree(d_A);
-	cublasFree(d_B);
-	cublasFree(d_C);
+	cudaFree(d_A);
+	cudaFree(d_B);
+	cudaFree(d_C);
 
+	cublasDestroy(handle);
 
-	return;
+	return EXIT_SUCCESS;
 
 }
 
@@ -83,9 +130,7 @@ void create_MatBlock(double **A, const int block_size)
 
 void free_MatBlock(double *A, const int block_size)
 {
-	int i;
 	free(A);
-
 }
 
 
