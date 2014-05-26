@@ -18,6 +18,7 @@ OBJ=$(SRC:.c=.o) $(SRCGPU:.cu=.o)
 
 ifeq ($(DEBUG),yes)
 	CFLAGS=-Wall -g -DDEBUG
+	NVCC_FLAGS=-g -DDEBUG
 endif
 
 all: $(EXEC)
