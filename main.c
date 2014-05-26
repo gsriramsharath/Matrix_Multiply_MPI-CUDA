@@ -20,6 +20,7 @@ int main(int argc, char ** argv)
 	// Matrix Dimension
 	int Nb_block =0;
 	int block_size =0;
+	double * Alocal, *Blocal, *Clocal;
 
 	// MPI
 	int rank, communicator_size;	
@@ -59,16 +60,14 @@ int main(int argc, char ** argv)
 		printf("\t Nodes:%i Blocks:%i Block Size:%i\n",communicator_size,Nb_block,block_size);
 	}
 
-	I=rank/Nb_block;
-	J=rank%Nb_block;
-
-	MPI_Comm_split(MPI_COMM_WORLD,I,J,&row);
-	MPI_Comm_split(MPI_COMM_WORLD,J,I,&column);
+	alloc_MatBlock(&Alocal, block_size);
+	alloc_MatBlock(&Blocal, block_size);
+	alloc_MatBlock(&Clocal, block_size);
 
 
 	if(rank==0) start=MPI_Wtime();
 
-	compute_dgemm(rank,row,column,I,J,block_size,Nb_block);
+	compute_dgemm(Alocal, Blocal, Clocal, Nb_block, block_size, rank);
 
 #ifdef DEBUG
 	printf("Rank:%i Finished\n",rank);
@@ -82,6 +81,10 @@ int main(int argc, char ** argv)
 		perf_matbloc(start,stop,Nb_block,block_size);
 
 	}
+
+	free_MatBlock(Alocal, block_size);
+	free_MatBlock(Blocal, block_size);
+	free_MatBlock(Clocal, block_size);
 
 
 	MPI_Finalize();

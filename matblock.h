@@ -17,7 +17,7 @@
 
 //#include <cblas.h>
 
-void compute_dgemm(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int block_size, int Nb_block);
+int compute_dgemm(double *A, double *B, double *C, int Nb_block, int block_size, int rank);
 
 // Block Matrix Product
 void block_MatrixProd(double * A, double * B, double * C, int block_size);

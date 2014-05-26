@@ -1,28 +1,32 @@
 #include "matblock.h"
 
-void compute_dgemm(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int block_size, int Nb_block)
+int compute_dgemm(double *A, double *B, double *C, int Nb_block, int block_size, int rank)
 {
 
-	double * Alocal,*Blocal,*Clocal;
 	double * Abuf, *Bbuf;
 	int K=0;
-    int i;
+    int i, err;
+
+    MPI_Comm row, column;
+    int I, J;
+
+	I=rank/Nb_block;
+	J=rank%Nb_block;
+
+	MPI_Comm_split(MPI_COMM_WORLD,I,J,&row);
+	MPI_Comm_split(MPI_COMM_WORLD,J,I,&column);
 
 #ifdef DEBUG
 	printf("Init Rank:%i Cart:%i,%i\n",rank,I,J);
 #endif
-
-	alloc_MatBlock(&Alocal, block_size);
-	alloc_MatBlock(&Blocal, block_size);
-	alloc_MatBlock(&Clocal, block_size);
 
 	alloc_MatBlock(&Abuf, block_size);
 	alloc_MatBlock(&Bbuf, block_size);
 
 	for(i=0;i<block_size*block_size;i++)
 	{
-		Alocal[i]=1.0;
-		Blocal[i]=2.0;
+		A[i]=1.0;
+		B[i]=2.0;
 	}
 
 #ifdef DEBUG
@@ -35,7 +39,7 @@ void compute_dgemm(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int bl
 
 		if(J==K)
 		{
-			memcpy(Abuf,Alocal,block_size*block_size*sizeof(double));
+			memcpy(Abuf,A,block_size*block_size*sizeof(double));
 		}
 
 
@@ -44,25 +48,27 @@ void compute_dgemm(int rank,  MPI_Comm row, MPI_Comm column,int I, int J, int bl
 		if(I==K)
 		{
 
-			memcpy(Bbuf,Blocal,block_size*block_size*sizeof(double));
+			memcpy(Bbuf,B,block_size*block_size*sizeof(double));
 		}
 
 		MPI_Bcast(Bbuf,block_size*block_size,MPI_DOUBLE,K,column);
 
-		block_MatrixProd_GPU(Abuf,Bbuf,Clocal,block_size,rank);
+		err = block_MatrixProd_GPU(Abuf,Bbuf,C,block_size,rank);
+		if (err != EXIT_SUCCESS)
+		{
+			printf("Memory alloction of B on device failed\n");
+			return EXIT_FAILURE;
+		}
+
 		K++;
 	}
 
 	free_MatBlock(Abuf, block_size);
 	free_MatBlock(Bbuf, block_size);
 
-	free_MatBlock(Alocal, block_size);
-	free_MatBlock(Blocal, block_size);
-	free_MatBlock(Clocal, block_size);
+	return EXIT_SUCCESS;
 
 }
-
-
 
 
 void block_MatrixProd(double * A, double * B, double * C, int block_size)
