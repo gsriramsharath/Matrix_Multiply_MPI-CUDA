@@ -218,7 +218,8 @@ int create_context(void *context)
 
 void destroy_context(void *context)
 {
-	cublasDestroy((cublasHandle_t)context);
+	cublasHandle_t *tmp = context;
+	cublasDestroy(*tmp);
 }
 
 void setDevice(int id)
